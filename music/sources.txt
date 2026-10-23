@@ -1,0 +1,2 @@
+# 1行1曲: ファイル名 URL
+hawaiian_01 https://ai-music-tracks.s3.us-east-1.amazonaws.com/94be2ffc-6114-4854-a151-6e3557a9fb7b/b267dcd0-75e2-476f-88bc-b19d7d2ea499.wav

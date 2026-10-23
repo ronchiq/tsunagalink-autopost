@@ -1,0 +1,107 @@
+name: Tsunagalink auto post
+
+on:
+  schedule:
+    # 月曜・木曜の 9:07(日本時間) = 0:07 UTC に作って、スプレッドシートへ 21:00 の予約を入れる
+    - cron: "7 0 * * 1,4"
+  workflow_dispatch:
+    inputs:
+      type:
+        description: "型を指定(空なら自動で選ぶ) 例: kids_points / team / tshirt"
+        required: false
+        default: ""
+      send_to_sheet:
+        description: "スプレッドシートに予約を入れる(false なら動画を作るだけ)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: autopost
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      meta: ${{ steps.gen.outputs.meta }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install fonts and ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk fonts-noto-cjk-extra ffmpeg > /dev/null
+          pip install --quiet pillow
+
+      - name: Fetch music listed in music/sources.txt
+        run: python scripts/fetch_music.py
+
+      - name: Generate reel
+        id: gen
+        run: |
+          if [ -n "${{ inputs.type }}" ]; then
+            META=$(python scripts/generate.py --type "${{ inputs.type }}" | tail -n 1)
+          else
+            META=$(python scripts/generate.py | tail -n 1)
+          fi
+          echo "$META"
+          echo "meta=$META" >> "$GITHUB_OUTPUT"
+
+      - name: Remove media older than 30 days
+        run: python scripts/prune.py
+
+      - name: Commit
+        run: |
+          git config user.name "tsunagalink-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A docs music
+          git commit -m "auto: $(date -u +%F) reel" || echo "nothing to commit"
+          git push
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  schedule-post:
+    needs: [build, deploy]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'schedule' || inputs.send_to_sheet }}
+    steps:
+      - name: Wait until the video is reachable, then add a row to the sheet
+        env:
+          META: ${{ needs.build.outputs.meta }}
+          GAS_URL: ${{ secrets.GAS_URL }}
+          GAS_TOKEN: ${{ secrets.GAS_TOKEN }}
+          PAGES_BASE: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+        run: |
+          if [ -z "$GAS_URL" ]; then echo "GAS_URL が未設定なので、シートへの予約はしません"; exit 0; fi
+          FILE=$(echo "$META" | jq -r .file)
+          URL="$PAGES_BASE/$FILE"
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+            [ "$code" = "200" ] && break
+            sleep 10
+          done
+          echo "video: $URL ($code)"
+          [ "$code" = "200" ] || { echo "動画のURLに届きません"; exit 1; }
+          BODY=$(echo "$META" | jq -c --arg url "$URL" --arg token "$GAS_TOKEN" \
+            '{token:$token, caption:.caption, hashtags:.hashtags, schedule:.schedule, video_url:$url, collaborators:.collaborators, type:.type}')
+          # Apps Script のウェブアプリは 302 で結果を返すので -L で追う
+          RES=$(curl -sS -L -X POST -H "Content-Type: application/json" -d "$BODY" "$GAS_URL")
+          echo "$RES"
+          echo "$RES" | grep -q '"ok":true' || { echo "シートへの追加に失敗しました"; exit 1; }
