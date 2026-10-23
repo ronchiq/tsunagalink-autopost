@@ -1,2 +1,4 @@
 # 1行1曲: ファイル名 URL
 hawaiian_01 https://ai-music-tracks.s3.us-east-1.amazonaws.com/94be2ffc-6114-4854-a151-6e3557a9fb7b/b267dcd0-75e2-476f-88bc-b19d7d2ea499.wav
+hawaiian_02 https://ai-music-tracks.s3.us-east-1.amazonaws.com/94be2ffc-6114-4854-a151-6e3557a9fb7b/46b1cf56-24da-4627-ab82-ddecef39c8c2.wav
+hawaiian_03 https://ai-music-tracks.s3.us-east-1.amazonaws.com/94be2ffc-6114-4854-a151-6e3557a9fb7b/4cd5fe39-8f0e-4d39-9ef0-e1c10c15d050.wav
