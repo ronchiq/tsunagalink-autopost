@@ -102,8 +102,8 @@ def f_photo(fr):
     d = ImageDraw.Draw(im, "RGBA")
     lines = fr["lines"]; size = fit_size(lines, "black", 88)
     lh = int(size * 1.35)
-    top = 300
     hgt = (100 if fr.get("label") else 0) + lh * len(lines) + 70
+    top = 300 if fr.get("pos", "top") == "top" else H - hgt - 330  # 顔が上にある写真は pos: bottom
     d.rectangle((0, top - 40, W, top - 40 + hgt + 30), fill=(0, 0, 0, 115))
     y = top
     if fr.get("label"):
