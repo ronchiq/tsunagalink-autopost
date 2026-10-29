@@ -12,6 +12,7 @@
  *     で作成し、表示された URL を GitHub の GAS_URL に入れる
  */
 const AUTOPOST_SHEET_NAME = "シート1"; // 投稿予約台帳のシート名
+const AUTOPOST_SHEET_ID = ""; // 投稿予約台帳のスプレッドシートID(URLの /d/ と /edit の間)
 
 function doPost(e) {
   try {
@@ -19,7 +20,7 @@ function doPost(e) {
     const expected = PropertiesService.getScriptProperties().getProperty("AUTOPOST_TOKEN");
     if (!expected || body.token !== expected) return json_({ ok: false, error: "token" });
 
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = AUTOPOST_SHEET_ID ? SpreadsheetApp.openById(AUTOPOST_SHEET_ID) : SpreadsheetApp.getActiveSpreadsheet();
     const sheet = AUTOPOST_SHEET_NAME ? ss.getSheetByName(AUTOPOST_SHEET_NAME) : ss.getSheets()[0];
 
     // 同じ動画が二重に入らないように確認
