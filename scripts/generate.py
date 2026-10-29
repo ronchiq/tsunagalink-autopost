@@ -225,6 +225,7 @@ def choose_type(types, state, today, rng):
     last_date = {}
     for h in hist:
         last_date[h["type"]] = h["date"]
+    types = [t for t in types if t.get("weight", 1.0) > 0]  # weight 0 = お休み中
     cands = []
     for t in types:
         gap = t.get("min_gap_days")
