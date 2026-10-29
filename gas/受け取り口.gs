@@ -12,7 +12,7 @@
  *     で作成し、表示された URL を GitHub の GAS_URL に入れる
  */
 const AUTOPOST_SHEET_NAME = "シート1"; // 投稿予約台帳のシート名
-const AUTOPOST_SHEET_ID = ""; // 投稿予約台帳のスプレッドシートID(URLの /d/ と /edit の間)
+const AUTOPOST_SHEET_ID = "1-wlURDenXiTmQvIaa8ILL8Vt3SjtYXTsWZ1VAdRhzqc"; // 投稿予約台帳のスプレッドシートID(URLの /d/ と /edit の間)
 
 function doPost(e) {
   try {
