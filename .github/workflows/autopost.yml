@@ -14,6 +14,10 @@ on:
         description: "スプレッドシートに予約を入れる(false なら動画を作るだけ)"
         type: boolean
         default: false
+      test:
+        description: "テスト用(予約日を 2027/12/31 にして、投稿履歴も残さない)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -44,11 +48,10 @@ jobs:
       - name: Generate reel
         id: gen
         run: |
-          if [ -n "${{ inputs.type }}" ]; then
-            META=$(python scripts/generate.py --type "${{ inputs.type }}" | tail -n 1)
-          else
-            META=$(python scripts/generate.py | tail -n 1)
-          fi
+          ARGS=""
+          [ -n "${{ inputs.type }}" ] && ARGS="$ARGS --type ${{ inputs.type }}"
+          [ "${{ inputs.test }}" = "true" ] && ARGS="$ARGS --date 2027-12-31 --dry-run"
+          META=$(python scripts/generate.py $ARGS | tail -n 1)
           echo "$META"
           echo "meta=$META" >> "$GITHUB_OUTPUT"
 
