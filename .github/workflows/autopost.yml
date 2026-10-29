@@ -101,10 +101,11 @@ jobs:
             sleep 10
           done
           echo "video: $URL ($code)"
-          [ "$code" = "200" ] || { echo "動画のURLに届きません"; exit 1; }
+          [ "$code" = "200" ] || { echo "::error::動画のURLに届きません $URL ($code)"; exit 1; }
           BODY=$(echo "$META" | jq -c --arg url "$URL" --arg token "$GAS_TOKEN" \
             '{token:$token, caption:.caption, hashtags:.hashtags, schedule:.schedule, video_url:$url, collaborators:.collaborators, type:.type}')
           # Apps Script のウェブアプリは 302 で結果を返すので -L で追う
           RES=$(curl -sS -L -X POST -H "Content-Type: application/json" -d "$BODY" "$GAS_URL")
           echo "$RES"
-          echo "$RES" | grep -q '"ok":true' || { echo "シートへの追加に失敗しました"; exit 1; }
+          echo "::notice::シートの返事: $(echo "$RES" | head -c 300)"
+          echo "$RES" | grep -q '"ok":true' || { echo "::error::シートへの追加に失敗しました"; exit 1; }
