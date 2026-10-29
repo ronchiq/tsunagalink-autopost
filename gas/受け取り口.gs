@@ -11,7 +11,7 @@
  *       アクセスできるユーザー: 全員
  *     で作成し、表示された URL を GitHub の GAS_URL に入れる
  */
-const AUTOPOST_SHEET_NAME = ""; // 空なら一番左のシート。シート名を決めている場合はここに書く
+const AUTOPOST_SHEET_NAME = "シート1"; // 投稿予約台帳のシート名
 
 function doPost(e) {
   try {
