@@ -300,7 +300,11 @@ def main():
     rng = random.Random(today.toordinal())
     state = load_state()
     types = cfg["types"]
-    t = next(x for x in types if x["id"] == args.type) if args.type else choose_type(types, state, today, rng)
+    queued = None
+    if not args.type and state.get("queue"):
+        queued = state["queue"][0]  # 次に出したい型を先に予約できる
+    pick = args.type or queued
+    t = next(x for x in types if x["id"] == pick) if pick else choose_type(types, state, today, rng)
     months = max(1, round((OPEN_TARGET - today).days / 30.4))
     t = deep_fill(t, {"months": months})
     dflt = cfg["defaults"]
@@ -329,6 +333,8 @@ def main():
     }
     (out_dir / f"{stem}.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2))
     if not args.dry_run:
+        if queued and state.get("queue") and state["queue"][0] == queued:
+            state["queue"].pop(0)
         state.setdefault("history", []).append({"date": today.isoformat(), "type": t["id"]})
         state["history"] = state["history"][-60:]
         STATE.write_text(json.dumps(state, ensure_ascii=False, indent=2))

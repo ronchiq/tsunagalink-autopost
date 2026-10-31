@@ -12,5 +12,8 @@
       "date": "2026-10-29",
       "type": "recruit_therapist"
     }
+  ],
+  "queue": [
+    "hours"
   ]
 }
