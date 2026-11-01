@@ -290,6 +290,20 @@ def render_video(frames, out, rng, tmp):
     return round(total, 1), music
 
 
+def pick_collaborators(t, dflt, state):
+    """固定メンバー + 応援してくれる人を順番に入れる(インスタの上限5人まで)"""
+    if "collaborators" in t:
+        return t["collaborators"][: dflt.get("collaborators_max", 5)]
+    core = list(dflt["collaborators"])
+    pool = [h for h in dflt.get("collaborators_pool", []) if h not in core]
+    room = dflt.get("collaborators_max", 5) - len(core)
+    if not pool or room <= 0:
+        return core[: dflt.get("collaborators_max", 5)]
+    start = (len(state.get("history", [])) * room) % len(pool)
+    picked = [pool[(start + i) % len(pool)] for i in range(min(room, len(pool)))]
+    return core + picked
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--type"); ap.add_argument("--date"); ap.add_argument("--dry-run", action="store_true")
@@ -325,7 +339,7 @@ def main():
         "type": t["id"],
         "caption": caption,
         "hashtags": " ".join(t["hashtags"][:5]),
-        "collaborators": ",".join(t.get("collaborators", dflt["collaborators"])),
+        "collaborators": ",".join(pick_collaborators(t, dflt, state)),
         "schedule": f"{today.strftime('%Y/%m/%d')} 21:00",
         "file": f"media/{stem}.mp4",
         "duration": dur,
