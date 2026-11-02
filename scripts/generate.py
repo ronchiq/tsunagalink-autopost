@@ -22,7 +22,7 @@ MUSIC = ROOT / "music"
 DOCS = ROOT / "docs"
 STATE = DOCS / "state.json"
 JST = dt.timezone(dt.timedelta(hours=9))
-OPEN_TARGET = dt.date(2027, 7, 1)  # 「2027年夏」の目安(月数の計算だけに使う)
+OPEN_TARGET = dt.date(2027, 7, 1)  # 月数の計算用(今は投稿文では使っていない)
 
 W, H = 1080, 1920
 BG = (247, 243, 236); BR = (110, 78, 52); SUB = (140, 120, 100); ACC = (122, 90, 58); TEAL = (70, 120, 140)
@@ -333,7 +333,7 @@ def main():
     with tempfile.TemporaryDirectory() as tmp:
         dur, music = render_video(frames, mp4, rng, tmp)
         frames[0][0].save(out_dir / f"{stem}.jpg", quality=85)
-    caption = t["caption"] + f"\n\n{dflt['end_line']}\n2027年夏、オープン予定です。"
+    caption = t["caption"] + f"\n\n{dflt['end_line']}\n2027年、オープン予定です。"
     meta = {
         "date": today.isoformat(),
         "type": t["id"],
