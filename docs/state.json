@@ -11,9 +11,11 @@
     {
       "date": "2026-10-29",
       "type": "recruit_therapist"
+    },
+    {
+      "date": "2026-11-02",
+      "type": "hours"
     }
   ],
-  "queue": [
-    "hours"
-  ]
+  "queue": []
 }
