@@ -15,6 +15,10 @@
     {
       "date": "2026-11-02",
       "type": "hours"
+    },
+    {
+      "date": "2026-11-05",
+      "type": "kids_faq"
     }
   ],
   "queue": []
