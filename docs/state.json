@@ -31,6 +31,10 @@
     {
       "date": "2026-11-16",
       "type": "kids_points"
+    },
+    {
+      "date": "2026-11-19",
+      "type": "countdown"
     }
   ],
   "queue": []
